@@ -143,7 +143,7 @@ void filter_bthome_ad(padv_bthome_t p, u8 * pmac) {
 							else
 								scan.cfg.interval = 120;
 						}
-#if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN)
+#if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN) || (DEVICE_TYPE == DEVICE_LYWSD02MMC) // TODO: 02?
 						SET_LCD_UPDATE();
 #else
 						lcd_flg.update_next_measure = 0;

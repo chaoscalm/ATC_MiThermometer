@@ -136,14 +136,14 @@ def main():
 	print("{0} : {1:d} {2} {3}".format("Total Used SRAM", ram_used, "from", chip_sram_size))
 	print("{0} : {1:d}{2}{3}{4}{5}".format("Total Free SRAM", sec_size[4], " + stack[", sec_size[10], '] = ',  sec_size[4] + sec_size[10]))
 	if sec_size[10] < 256:
-		print("Warning! Stack is low!")
+		print("Warning! Stack is low!", file=sys.stderr)
 		
 	if chip_retram_size < retram_used:
 		print()
-		print("Error: Retention SRAM Overflow (%i bytes)!" % (retram_used - chip_retram_size))
+		print("Error: Retention SRAM Overflow (%i bytes)!" % (retram_used - chip_retram_size), file=sys.stderr)
 		sys.exit(1);
 	sys.exit(0);
-	
+
 
 if __name__ == '__main__':
 	main()

@@ -324,6 +324,13 @@ static const u8 my_SerialStr[] = {"0000-0000-0000-002e"}; // "0000-0000-0000-000
 static const u8 my_SoftStr[] = {'V','0'+(VERSION>>4),'.','0'+(VERSION&0x0f)}; // "0109"
 static const u8 my_ManStr[] = {"Sonoff"};
 
+#elif DEVICE_TYPE == DEVICE_LYWSD02MMC
+static const u8 my_ModelStr[] = {"LYWSDO2MMC"};
+static const u8 my_HardStr[5] = {"F4_QT"};
+RAM u8 my_SerialStr[20]; // = {"F470003441FFFFFFFF"}
+static const u8 my_SoftStr[] = {'V','0'+(VERSION>>4),'.','0'+(VERSION&0x0f)}; // "0026"
+static const u8 my_ManStr[] = {"miaomiaoce.com"};
+
 #else
 #error "DEVICE_TYPE = ?"
 #endif

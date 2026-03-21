@@ -7,7 +7,7 @@
 #include "tl_common.h"
 #include "app_config.h"
 #if (DEV_SERVICES & SERVICE_SCREEN)
-#if !((DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN))
+#if !((DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN) || (DEVICE_TYPE == DEVICE_LYWSD02MMC))
 #include "drivers.h"
 #include "drivers/8258/gpio_8258.h"
 #include "app.h"
@@ -81,7 +81,7 @@ void lcd(void) {
 			show_smiley(*((u8 *) &ext.flg));
 #endif
 			show_battery_symbol(ext.flg.battery);
-#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2)
+#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2) || (DEVICE_TYPE == DEVICE_LYWSD02MMC)
 			show_small_number_x10(ext.small_number, ext.flg.percent_on);
 #else
 			show_small_number(ext.small_number, ext.flg.percent_on);
@@ -94,7 +94,7 @@ void lcd(void) {
 	if (show_ext && (lcd_flg.show_stage & 2)) { // show ext data
 		if (lcd_flg.show_stage & 1) { // stage blinking or show battery or clock
 			if (cfg.flg.show_batt_enabled
-#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2)
+#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2) || (DEVICE_TYPE == DEVICE_LYWSD02MMC)
 #else
 				|| measured_data.battery_level <= 5
 #endif
@@ -103,9 +103,11 @@ void lcd(void) {
 				show_smiley(0); // stage show battery
 #endif
 				show_battery_symbol(1);
-#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2)
+#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2) || (DEVICE_TYPE == DEVICE_LYWSD02MMC)
 #if DEVICE_TYPE == DEVICE_CGG1
 				show_batt_cgg1();
+#elif (DEVICE_TYPE == DEVICE_LYWSD02MMC)
+				show_batt_lyws02();
 #else
 				show_batt_cgdk2();
 #endif
@@ -135,7 +137,7 @@ void lcd(void) {
 #endif
 		if (set_small_number_and_bat) {
 			show_battery_symbol(ext.flg.battery);
-#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2)
+#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2) || (DEVICE_TYPE == DEVICE_LYWSD02MMC)
 			show_small_number_x10(ext.small_number, ext.flg.percent_on);
 #else
 			show_small_number(ext.small_number, ext.flg.percent_on);
@@ -153,7 +155,7 @@ void lcd(void) {
 			}
 #endif
 			if (cfg.flg.show_batt_enabled
-#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2) || (DEVICE_TYPE == DEVICE_LKTMZL02)
+#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2) || (DEVICE_TYPE == DEVICE_LKTMZL02) || (DEVICE_TYPE == DEVICE_LYWSD02MMC)
 
 #else
 				|| measured_data.battery_level <= 5
@@ -163,9 +165,11 @@ void lcd(void) {
 				show_smiley(0); // stage show battery
 #endif
 				show_battery_symbol(1);
-#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2)
-#if DEVICE_TYPE == DEVICE_CGG1
+#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2) || (DEVICE_TYPE == DEVICE_LYWSD02MMC)
+#if (DEVICE_TYPE == DEVICE_CGG1)
 				show_batt_cgg1();
+#elif (DEVICE_TYPE == DEVICE_LYWSD02MMC)
+				show_batt_lyws02();
 #else
 				show_batt_cgdk2();
 #endif
@@ -200,7 +204,7 @@ void lcd(void) {
 #endif
 		}
 		if (set_small_number_and_bat) {
-#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2)
+#if	(DEVICE_TYPE == DEVICE_CGG1) || (DEVICE_TYPE == DEVICE_CGDK2) || (DEVICE_TYPE == DEVICE_LYWSD02MMC)
 			show_battery_symbol(!cfg.flg.show_batt_enabled);
 			show_small_number_x10(measured_data.humi_x01, 1);
 #else

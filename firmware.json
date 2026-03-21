@@ -34,7 +34,8 @@
 "bin/ZG303Z_v55.bin",
 "bin/ZBTH01_v55.bin", 
 "bin/ZB_MC_v55.bin",
-"bin/ZB2TH01_v56.bin" 
+"bin/ZB2TH01_v56.bin",
+"?","?"
 ],
 "original":[
 "bin/Original/Original_OTA_Xiaomi_LYWSD03MMC_v1.0.0_0130.bin",
@@ -53,6 +54,9 @@
 "bin/Original/Original_OTA_Xiaomi_MJWSD06MMC_v2.1.1_0009.bin",
 "bin/Original/Original_OTA_Xiaomi_LYWSD03MMC_v2.1.1_0159_B1.6.bin",
 "?","?","?","?","?","?","?","?","?","?","?","?","?","?","?","?"
+"?","?","?","?","?","?","?","?","?","?","?","?","?","?","?","?",
+"?","?",
+"bin/Original/Original_OTA_Xiaomi_LYWSD02MMC_2.0.1_0021.bin"
 ],
 "signed":[
 "bin/Original/Original_OTA_Xiaomi_LYWSD03MMC_v2.1.1_0159c.bin",
@@ -61,8 +65,6 @@
 "bin/Original/Original_OTA_Xiaomi_LYWSD03MMC_v2.1.1_0159c.bin",
 "bin/Original/Original_OTA_Xiaomi_LYWSD03MMC_v2.1.1_0159c.bin",
 "?","?","?","?",
-"bin/Original/Original_OTA_Xiaomi_LYWSD03MMC_v2.1.1_0159c.bin",
-"?","?","?","?","?","?","?","?","?","?","?","?","?","?","?","?",
-"?","?","?","?"
+"bin/Original/Original_OTA_Xiaomi_LYWSD03MMC_v2.1.1_0159c.bin"
 ]}
 

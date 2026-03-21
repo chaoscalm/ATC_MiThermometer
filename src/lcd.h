@@ -9,11 +9,17 @@
 
 typedef struct _lcd_flg_t {
 	u32 chow_ext_ut; // count chow ext.vars validity time, in sec
-#if  !((DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN))
+#if !((DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN))
+#if (DEVICE_TYPE == DEVICE_LYWSD02MMC)
+	u32 min_step_time_update_lcd; // = cfg.min_step_time_update_lcd * (50 * CLOCK_16M_SYS_TIMER_CLK_1MS)
+	u32 tim_last_chow; // timer show lcd >= 1.5 sec
+	u8 update_next_measure; 	  // flag update LCD if next_measure
+#else
 	u32 min_step_time_update_lcd; // = cfg.min_step_time_update_lcd * (50 * CLOCK_16M_SYS_TIMER_CLK_1MS)
 	u32 tim_last_chow; // timer show lcd >= 1.5 sec
 	u8 show_stage; // count/stage update lcd code buffer
 	u8 update_next_measure; 	  // flag update LCD if next_measure
+#endif
 #endif
 	u8 update; 	  // flag update LCD
 	union {
@@ -40,7 +46,7 @@ extern lcd_flg_t lcd_flg;
 
 extern u8 lcd_i2c_addr; // LCD controller I2C address
 
-#if  !((DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN))
+#if  !((DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN) || (DEVICE_TYPE == DEVICE_LYWSD02MMC))
 /* CGG1 no symbol 'smiley' ! */
 #define SMILE_HAPPY 5 		// "(^-^)" happy
 #define SMILE_SAD   6 		// "(-^-)" sad
@@ -255,9 +261,48 @@ void show_reboot_screen(void);
 extern u8 display_buff[LCD_BUF_SIZE], display_cmp_buff[LCD_BUF_SIZE+1];
 void show_small_number(s16 number, bool percent); // -9 .. 99
 
+#elif (DEVICE_TYPE == DEVICE_LYWSD02MMC)
+
+#define SHOW_OTA_SCREEN()
+#define SET_LCD_UPDATE() { lcd_flg.update = 1; lcd_flg.update_next_measure = 0; }
+#define SHOW_CONNECTED_SYMBOL(a) { lcd_flg.update = 1; lcd_flg.update_next_measure = 0; }
+#define POWERUP_SCREEN	0
+#define SHOW_REBOOT_SCREEN()
+#define LCD_BUF_SIZE	18
+#define SHOW_SMILEY		1
+extern u8 stage_lcd;
+void show_small_number_x10(s16 number, bool percent); // -9 .. 99
+int task_lcd(void);
+void show_batt_lyws02(void);
+extern u8 display_buff[LCD_BUF_SIZE], display_cmp_buff[LCD_BUF_SIZE];
+
 #else
 #error "Set DEVICE_TYPE!"
 #endif
+
+#elif (DEVICE_TYPE == DEVICE_LYWSD02MMC)
+
+#define POWERUP_SCREEN	1
+
+void init_lcd(void);
+void lcd(void);
+void update_lcd(void);
+//void show_battery_symbol(bool state);
+void show_ble_symbol(bool state);
+void show_low_bat(void);
+
+#define SET_LCD_UPDATE() { lcd_flg.update = 1; lcd_flg.update_next_measure = 0; }
+#define SHOW_CONNECTED_SYMBOL(a) { show_ble_symbol(a); lcd_flg.update = 1; lcd_flg.update_next_measure = 0; }
+//#define POWERUP_SCREEN	0
+#define LCD_BUF_SIZE	16
+#define SHOW_SMILEY		1
+extern u8 stage_lcd;
+//void show_small_number(s16 number, bool percent); // -9 .. 99
+int task_lcd(void);
+extern u8 display_buff[LCD_BUF_SIZE], display_cmp_buff[LCD_BUF_SIZE];
+
+#define SHOW_REBOOT_SCREEN();
+#define SHOW_OTA_SCREEN()
 
 #else // (DEVICE_TYPE == DEVICE_MJWSD05MMC)
 

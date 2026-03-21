@@ -257,7 +257,7 @@ const sensor_def_cfg_t def_thcoef_cht8305 = {
 #define CHT8215_CFG_ATM			0x0001
 
 #define CHT8215_MID	0x5959
-#define CHT8215_VID	0x1582
+#define CHT8215_VID	0x8215
 
 const sensor_def_cfg_t def_thcoef_cht8215 = {
 		.coef.val1_k = 25606, // temp_k
@@ -484,21 +484,18 @@ static int read_sensor_sht30_shtc3_sht4x(void) {
 				sensor_calk_th(_temp, _humi);
 #if USE_SENSOR_SHTC3
 				if (sensor_cfg.sensor_type == TH_SENSOR_SHTC3) {
-					if(send_i2c_word(sensor_cfg.i2c_addr, SHTC3_GO_SLEEP)) // Sleep command of the sensor
-						ret = 0;
+					ret = send_i2c_word(sensor_cfg.i2c_addr, SHTC3_GO_SLEEP) == 0; // Sleep command of the sensor
 				} else
 #endif
 #if !SENSOR_SLEEP_MEASURE
 #if USE_SENSOR_SHT4X
 				if(sensor_cfg.sensor_type == TH_SENSOR_SHT4x) {
-					if(send_i2c_byte(sensor_cfg.i2c_addr, SHT4x_MEASURE_HI)) // start measure T/H
-						ret = 0;
+					ret = send_i2c_byte(sensor_cfg.i2c_addr, SHT4x_MEASURE_HI) == 0; // start measure T/H
 				} else
 #endif // USE_SENSOR_SHT4X
 #if USE_SENSOR_SHT30
 				if(sensor_cfg.sensor_type == TH_SENSOR_SHT30) {
-					if(send_i2c_word(sensor_cfg.i2c_addr, SHT30_HIMEASURE)) // start measure T/H
-						ret = 0;
+					ret = send_i2c_word(sensor_cfg.i2c_addr, SHT30_HIMEASURE) == 0; // start measure T/H
 				} else
 #endif //USE_SENSOR_SHT30
 #endif
@@ -686,7 +683,11 @@ static int check_sensor(void) {
 void init_sensor(void) {
 	//scan_i2c_addr(0);
 	send_i2c_byte(0, 0x06); // Reset command using the general call address
-	sleep_us(SHTC3_WAKEUP_us);	// 240 us
+#if USE_SENSOR_CHT8215
+	sleep_us(1000);	// 1000 us
+#else
+	sleep_us(250);	// 250 us
+#endif
 
 #if SENSOR_SLEEP_MEASURE
 	check_sensor();
@@ -729,7 +730,6 @@ int read_sensor_cb(void) {
 		{
 			return 0;
 		}
-
 	}
 	check_sensor();
 	return 0;

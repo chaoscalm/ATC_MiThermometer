@@ -56,11 +56,13 @@ typedef struct __attribute__((packed)) _cfg_t {
 		u8 comfort_smiley	: 1;
 #if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN)
 		u8 x100				: 1;
+#elif (DEVICE_TYPE == DEVICE_LYWSD02MMC)
+		u8 show_battery			: 1;
 #else
-		u8 show_time_smile	: 1; // if USE_CLOCK: = 0 - smile, =1 time, else: blinking on/off
+		u8 show_time_smile	: 1; // show clock
 #endif
 		u8 temp_F_or_C		: 1;
-#if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN)
+#if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN)  || (DEVICE_TYPE == DEVICE_LYWSD02MMC)
 		u8 time_am_pm		: 1;
 #else
 		u8 show_batt_enabled : 1;
@@ -106,7 +108,7 @@ typedef struct __attribute__((packed)) _cfg_t {
 #if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN)
 		u8 screen_type	: 3;
 #else
-		u8 smiley 		: 3;	// 0..7
+		u8 smiley 		: 3;	// 0..7 (if comfort_smiley == 0)
 #endif
 		u8 adv_crypto	: 1; 	// advertising uses crypto beacon
 		u8 adv_flags  	: 1; 	// advertising add flags
@@ -123,7 +125,11 @@ typedef struct __attribute__((packed)) _cfg_t {
 		u8 adv_interval_delay	: 4; // 0..15,  in 0.625 ms, a pseudo-random value in the range from 0 to X ms is added to a fixed advInterval so that advertising events change over time.
 		u8 reserved				: 2;
 		u8 date_ddmm			: 1; // display mm:dd (MJWSD05MMC en)
+#if (DEVICE_TYPE == DEVICE_LYWSD02MMC)
+		u8 show_day_of_week		: 1; // display day of week (LYWSD02MMC)
+#else
 		u8 not_day_of_week		: 1; // do not display day of week (MJWSD05MMC)
+#endif
 	} flg3;
 	u8 event_adv_cnt;		// min value = 5
 #endif
@@ -141,7 +147,7 @@ extern const cfg_t def_cfg;
 #if (DEV_SERVICES & SERVICE_SCREEN)
 /* Warning: MHO-C401 Symbols: "%", "°Г", "(  )", "." have one control bit! */
 typedef struct __attribute__((packed)) _external_data_t {
-#if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN)
+#if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN) || (DEVICE_TYPE == DEVICE_LYWSD02MMC)
 	s32		number; // -999.50..19995.50, x0.01
 	u16 	vtime_sec; // validity time, in sec
 	struct __attribute__((packed)) {

@@ -565,6 +565,11 @@ void ble_set_name(void) {
 		ble_name[3] = 'G';
 		ble_name[4] = '3';
 		ble_name[5] = '_';
+#elif DEVICE_TYPE == DEVICE_LYWSD02MMC
+		ble_name[2] = 'D';
+		ble_name[3] = '0';
+		ble_name[4] = '2';
+		ble_name[5] = '_';
 #else
 		ble_name[2] = 'A';
 		ble_name[3] = 'T';

@@ -66,11 +66,13 @@ extern "C" {
 #define DEVICE_ZBEACON_TH01	45  // Tuya ZBEACON-TH01, 2xAAA , SHT4X
 #define DEVICE_ZB_MC		46  // ZigBee-MC, 2xAAA, CHT8305
 #define DEVICE_ZBEACON2TH01	47  // Tuya ZBEACON-TH01 v2.0, 2xAAA , SHT4X/G40
+//#define DEVICE_RSH_HS03	48  // Tuya ZigBee Temperature/Humidity Sensor "TY0201_TZ3000_bjawzodf", PCB designator "RSH-HS03-V2.0-241018"
+#define DEVICE_LYWSD02MMC	49  // EInk display, Clock
 
 //#define TEST_PLM1 			1  // TB03F My Plant monitor
 
 #ifndef DEVICE_TYPE
-#define DEVICE_TYPE			DEVICE_TS0201
+#define DEVICE_TYPE			DEVICE_LYWSD02MMC
 #endif
 
 // supported services by the device (bits)
@@ -2845,6 +2847,138 @@ GPIO_D7 - SDA
 #define PC0_FUNC            AS_GPIO
 #define PULL_WAKEUP_SRC_PC0 RDS1_PULLUP
 
+#elif DEVICE_TYPE == DEVICE_LYWSD02MMC
+
+// TLSR8250F512ET32
+// GPIO_PA0 - used EPD_BUSY
+// GPIO_PA1 - used EPD_RST
+// GPIO_PA7 - SWS, (debug TX)
+// GPIO_PB1 - used EPD_SCL
+// GPIO_PB4 - free (R4)
+// GPIO_PB5 - free (mark: reset)
+// GPIO_PB6 - free
+// GPIO_PB7 - used EPD_CSB
+// GPIO_PC0 - SDA, used I2C
+// GPIO_PC1 - SCL, used I2C
+// GPIO_PC2 - used EPD_SDA
+// GPIO_PC3 - free
+// GPIO_PC4 - free
+// GPIO_PD2 - used EPD_CSB
+// GPIO_PD3 - free
+// GPIO_PD4 - free
+// GPIO_PD7 - used EPD_SHD
+
+#define DEV_SERVICES ( SERVICE_OTA\
+		| SERVICE_OTA_EXT \
+		| SERVICE_PINCODE \
+		| SERVICE_BINDKEY \
+		| SERVICE_HISTORY \
+		| SERVICE_SCREEN \
+		| SERVICE_LE_LR \
+		| SERVICE_THS \
+		| SERVICE_RDS \
+		| SERVICE_HARD_CLOCK \
+		| SERVICE_TH_TRG \
+		| SERVICE_MI_KEYS \
+)
+#define USE_FLASH_SERIAL_UID	1
+
+#define USE_EPD			(550/50 - 1) // min update time ms
+
+#define USE_SENSOR_CHT8305		0
+#define USE_SENSOR_CHT8215		0
+#define USE_SENSOR_AHT20_30		0
+#define USE_SENSOR_SHT4X		1
+#define USE_SENSOR_SHTC3		1
+#define USE_SENSOR_SHT30		0
+
+#define SHL_ADC_VBAT		1  // "B0P" in adc.h
+#define GPIO_VBAT			GPIO_PB0 // missing pin on case TLSR8253F512ET32
+#define PB0_INPUT_ENABLE	1
+#define PB0_DATA_OUT		1
+#define PB0_OUTPUT_ENABLE	1
+#define PB0_FUNC			AS_GPIO
+
+#define I2C_MAX_SPEED 		400000 // 400 kHz
+#define I2C_SCL 			GPIO_PC0
+#define I2C_SDA 			GPIO_PC1
+#define I2C_GROUP 			I2C_GPIO_GROUP_C0C1
+#define PULL_WAKEUP_SRC_PC0	PM_PIN_PULLUP_10K
+#define PULL_WAKEUP_SRC_PC1	PM_PIN_PULLUP_10K
+
+#define EPD_SHD				GPIO_PB1 // should be high
+#define PULL_WAKEUP_SRC_PB1 PM_PIN_PULLUP_10K
+
+#define EPD_BUSY			GPIO_PA0
+#define PULL_WAKEUP_SRC_PA0 PM_PIN_PULLUP_1M
+#define PA0_INPUT_ENABLE	1
+#define PA0_FUNC			AS_GPIO
+
+#define EPD_RST				GPIO_PC3
+#define PULL_WAKEUP_SRC_PC3 PM_PIN_PULLUP_1M
+#define PC3_INPUT_ENABLE	1
+#define PC3_DATA_OUT		1
+#define PC3_OUTPUT_ENABLE	1
+#define PC3_FUNC			AS_GPIO
+
+#define EPD_CSB				GPIO_PA1
+#define PULL_WAKEUP_SRC_PA1 PM_PIN_PULLUP_1M
+#define PA1_INPUT_ENABLE	1
+#define PA1_DATA_OUT		1
+#define PA1_OUTPUT_ENABLE	1
+#define PA1_FUNC			AS_GPIO
+
+#define EPD_SDA				GPIO_PB7
+#define PULL_WAKEUP_SRC_PB7 PM_PIN_PULLDOWN_100K // PM_PIN_PULLUP_1M
+#define PB7_INPUT_ENABLE	1
+#define PB7_DATA_OUT		1
+#define PB7_OUTPUT_ENABLE	1
+#define PB7_FUNC			AS_GPIO
+
+#define EPD_SCL				GPIO_PD7
+#define PULL_WAKEUP_SRC_PD7 PM_PIN_PULLDOWN_100K // PM_PIN_PULLUP_1M
+#define PD7_INPUT_ENABLE	1
+#define PD7_DATA_OUT		0
+#define PD7_OUTPUT_ENABLE	1
+#define PD7_FUNC			AS_GPIO
+
+#if (DEV_SERVICES & SERVICE_KEY)
+
+// PC4 - key
+#define GPIO_KEY2			GPIO_PB5
+#define PB5_INPUT_ENABLE	1
+#define PB5_DATA_OUT		0
+#define PB5_OUTPUT_ENABLE	0
+#define PB5_FUNC			AS_GPIO
+#define PULL_WAKEUP_SRC_PB5 PM_PIN_PULLUP_1M
+
+#define RDS1_PULLUP			PM_PIN_PULLUP_1M
+#define GPIO_RDS1 			GPIO_PB4	// Reed Switch, Input
+#define PB4_INPUT_ENABLE	1
+#define PB4_DATA_OUT		0
+#define PB4_OUTPUT_ENABLE	0
+#define PB4_FUNC			AS_GPIO
+#define PULL_WAKEUP_SRC_PB4 RDS1_PULLUP
+
+#else
+
+#define RDS1_PULLUP			PM_PIN_PULLUP_1M
+#define GPIO_RDS1 			GPIO_PC4	// Reed Switch, Input
+#define PC4_INPUT_ENABLE	1
+#define PC4_DATA_OUT		0
+#define PC4_OUTPUT_ENABLE	0
+#define PC4_FUNC			AS_GPIO
+#define PULL_WAKEUP_SRC_PC4 RDS1_PULLUP
+
+#endif
+
+#define GPIO_TRG			GPIO_PA2 // none
+#define PA2_INPUT_ENABLE	1
+#define PA2_DATA_OUT		0
+#define PA2_OUTPUT_ENABLE	0
+#define PA2_FUNC			AS_GPIO
+#define PULL_WAKEUP_SRC_PA2	PM_PIN_PULLDOWN_100K
+
 #else // DEVICE_TYPE
 #error ("DEVICE_TYPE = ?")
 #endif // DEVICE_TYPE == ?
@@ -3015,7 +3149,8 @@ enum{
   0x74000 Pair & Security info (CFG_ADR_BIND)
   0x76000 MAC address (CFG_ADR_MAC)
   0x77000 Customize freq_offset adjust cap value (CUST_CAP_INFO_ADDR)
-  0x78000 User Data Area (EEP, saving configuration) (FMEMORY_SCFG_BASE_ADDR), conflict in master mode (CFG_ADR_PEER)
+  0x78000 CFG_ADR_PEER
+  0x7C000 User Data Area (EEP, saving configuration) (FMEMORY_EEP_BASE_ADDR)
   0x80000 End Flash (FLASH_SIZE)
  */
 /* flash sector address with binding information */

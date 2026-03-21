@@ -1,5 +1,5 @@
 @Path=E:\Telink\SDK;E:\Telink\SDK\jre\bin;E:\Telink\SDK\opt\tc32\tools;E:\Telink\SDK\opt\tc32\bin;E:\Telink\SDK\usr\bin;E:\Telink\SDK\bin;%PATH%
-@set SWVER=_v56
+@set SWVER=_v57
 @del /Q "ATC%SWVER%.bin"
 make -s -j PROJECT_NAME=ATC%SWVER% POJECT_DEF="-DDEVICE_TYPE=DEVICE_LYWSD03MMC"
 @if not exist "ATC%SWVER%.bin" goto :error
@@ -45,6 +45,12 @@ make -s -j PROJECT_NAME=TS0201S1%SWVER% POJECT_DEF="-DDEVICE_TYPE=DEVICE_TS0201 
 @del /Q "TS0201S2%SWVER%.bin"
 make -s -j PROJECT_NAME=TS0201S2%SWVER% POJECT_DEF="-DDEVICE_TYPE=DEVICE_TS0201 -DUSE_SENSOR_MY18B20=2"
 @if not exist "TS0201S2%SWVER%.bin" goto :error
+@del /Q "TS0201E280%SWVER%.bin"
+make -s -j PROJECT_NAME=TS0201E280%SWVER% POJECT_DEF="-DDEVICE_TYPE=DEVICE_TS0201 -DUSE_SENSOR_BME280=1"
+@if not exist "TS0201E280%SWVER%.bin" goto :error
+@del /Q "TS0201B280%SWVER%.bin"
+make -s -j PROJECT_NAME=TS0201B280%SWVER% POJECT_DEF="-DDEVICE_TYPE=DEVICE_TS0201 -DUSE_SENSOR_BMP280=1"
+@if not exist "TS0201B280%SWVER%.bin" goto :error
 @del /Q "TH03Z%SWVER%.bin"
 make -s -j PROJECT_NAME=TH03Z%SWVER% POJECT_DEF="-DDEVICE_TYPE=DEVICE_TH03Z"
 @if not exist "TH03Z%SWVER%.bin" goto :error

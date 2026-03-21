@@ -54,7 +54,7 @@
 #define DEVICE_MHO_C401N   	 8	// E-Ink display MHO-C401 2022
 #define DEVICE_MJWSD05MMC	 9  // LCD (ch) display MJWSD05MMC
 #define DEVICE_MHO_C122   	11	// LCD display MHO_C122
-#define DEVICE_MJWSD05MMC_EN 12  // LCD (en) display MJWSD05MMC
+#define DEVICE_MJWSD05MMC_EN 12 // LCD (en) display MJWSD05MMC
 #define DEVICE_MJWSD06MMC   13  // LCD display MJWSD06MMC
 #define DEVICE_TB03F		16  // DIY TB-03F-Kit + INA226
 #define DEVICE_TS0201   	17	// ZigBee TS0201, analog: IH-K009
@@ -75,6 +75,9 @@
 #define DEVICE_ZBEACON_TH01	45  // Tuya ZBEACON-TH01, 2xAAA , SHT4X
 #define DEVICE_ZB_MC		46  // ZigBee-MC, 2xAAA, CHT8305
 #define DEVICE_ZBEACON2TH01	47  // Tuya ZBEACON-TH01 v2.0, 2xAAA , SHT4X/G40
+#define DEVICE_RSH_HS03	    48  // Tuya ZigBee Temperature/Humidity Sensor "TY0201_TZ3000_bjawzodf", PCB designator "RSH-HS03-V2.0-241018"
+#define DEVICE_LYWSD02MMC	49  // EInk display, Clock
+
 
 #if 0 // not used in this code!
 #define DEVICE_03MMC_DEVBIS	 3  // https://github.com/devbis/z03mmc

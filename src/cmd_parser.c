@@ -299,6 +299,9 @@ void cmd_parser(void * p) {
 #else
 			p->dev_spec_data = TH_SENSOR_NONE;
 #endif
+#if	(DEV_SERVICES & SERVICE_HARD_CLOCK)
+			p->dev_spec_data |= IU_SENSOR_PCF85163 << 8;
+#endif
 #if USE_SENSOR_HX71X
 			p->dev_spec_data |= IU_SENSOR_HX71X << 8;
 #elif (DEV_SERVICES & SERVICE_18B20)
@@ -332,7 +335,7 @@ void cmd_parser(void * p) {
 					lcd_flg.chow_ext_ut = 0xffffffff;
 				else
 					lcd_flg.chow_ext_ut = wrk.utc_time_sec + ext.vtime_sec;
-#if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN)
+#if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN) || (DEVICE_TYPE == DEVICE_LYWSD02MMC)
 				SET_LCD_UPDATE();
 #else
 				lcd_flg.update_next_measure = 0;
@@ -349,7 +352,7 @@ void cmd_parser(void * p) {
 				if (len > sizeof(cfg)) len = sizeof(cfg);
 				memcpy(&cfg, &req->dat[1], len);
 #if (DEV_SERVICES & SERVICE_SCREEN)
-#if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN)
+#if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN) || (DEVICE_TYPE == DEVICE_LYWSD02MMC)
 				SET_LCD_UPDATE();
 #else
 				lcd_flg.update_next_measure = 0;
@@ -359,8 +362,12 @@ void cmd_parser(void * p) {
 			test_config();
 			tmp ^= ((volatile u8 *)&cfg.flg2)[0];
 #if (DEV_SERVICES & SERVICE_SCREEN)
-			if(tmp & MASK_FLG2_SCR_OFF)
+			if(tmp & MASK_FLG2_SCR_OFF) {
+#if (DEVICE_TYPE == DEVICE_LYWSD02MMC)
+				memset(display_cmp_buff, 0, sizeof(display_cmp_buff));
+#endif
 				init_lcd();
+			}
 #endif // DEV_SERVICES & SERVICE_SCREEN
 #if	USE_SENSOR_SCD41
 			tst2 ^= ((volatile u8 *)&cfg.flg)[0];
@@ -648,7 +655,7 @@ void cmd_parser(void * p) {
 #else
 			send_buf[2] = 0;	// none
 #endif
-#if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN)
+#if (DEVICE_TYPE == DEVICE_MJWSD05MMC) || (DEVICE_TYPE == DEVICE_MJWSD05MMC_EN) || (DEVICE_TYPE == DEVICE_LYWSD02MMC)
 			send_buf[3] = rtc_i2c_addr;
 			olen = 3 + 1;
 #else

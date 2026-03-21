@@ -10,7 +10,7 @@ PROJECT_PATH := ./src
 OUT_PATH :=./out
 ZBO_PATH :=./zigbee_ota
 
-PGM_PORT?=COM6
+PGM_PORT?=COM15
 PGM_PORT_BAUD?=1500000
 
 ifneq ($(TEL_PATH)/components/drivers/8258/gpio_8258.c, $(wildcard $(TEL_PATH)/components/drivers/8258/gpio_8258.c))
@@ -120,8 +120,8 @@ stop:
 go:
 	@$(PYTHON) $(PROJECT_PATH)/../TlsrPgm.py -p$(PGM_PORT) -b$(PGM_PORT_BAUD) -w -m
 
-TADDR?=0x8450bc
-TLEN?=128
+TADDR?=00845ebc
+TLEN?=32
 test_damp:
 	@$(PYTHON) $(PROJECT_PATH)/../TlsrPgm.py -p$(PGM_PORT) -b$(PGM_PORT_BAUD) -z11 -c -g ds $(TADDR) $(TLEN)
 
