@@ -363,10 +363,7 @@ void cmd_parser(void * p) {
 			tmp ^= ((volatile u8 *)&cfg.flg2)[0];
 #if (DEV_SERVICES & SERVICE_SCREEN)
 			if(tmp & MASK_FLG2_SCR_OFF) {
-#if (DEVICE_TYPE == DEVICE_LYWSD02MMC)
-				memset(display_cmp_buff, 0, sizeof(display_cmp_buff));
-#endif
-				init_lcd();
+				reinit_lcd();
 			}
 #endif // DEV_SERVICES & SERVICE_SCREEN
 #if	USE_SENSOR_SCD41
@@ -775,12 +772,17 @@ void cmd_parser(void * p) {
 #endif
 		} else if (cmd == CMD_ID_RH_CAL) { // Calibrate sensor RH
 			if (len) {
-				if(req->dat[1] == 100)
+#if (USE_SENSOR_PWMRH == 1)
+				if(req->dat[1] == 1)
+					send_buf[1] = calibrate_rh_t();
+				else
+#endif
+				if(req->dat[1] == 2)
 					send_buf[1] = calibrate_rh_100();
-				else if(req->dat[1] == 0)
+				else if(req->dat[1] == 3)
 					send_buf[1] = calibrate_rh_0();
 				else {
-					send_buf[1] = 0xff; // 0xff; // Error cmd
+					send_buf[1] = 2;
 				}
 			} else {
 				send_buf[1] = 2;

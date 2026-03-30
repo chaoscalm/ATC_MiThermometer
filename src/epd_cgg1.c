@@ -82,7 +82,8 @@ const u8 digits[16][DEF_EPD_SUMBOL_SIGMENTS + 1] = {
  * 0xA0 = "°C"
  * 0xC0 = " ="
  * 0xE0 = "°E" */
-_attribute_ram_code_ void show_temp_symbol(u8 symbol) {
+_attribute_ram_code_
+void show_temp_symbol(u8 symbol) {
 	if (symbol & 0x20)
 		display_buff[1] |= BIT(3) | BIT(2);
 	else
@@ -99,14 +100,16 @@ _attribute_ram_code_ void show_temp_symbol(u8 symbol) {
 
 /* CGG1 no symbol 'smiley' !
  * =5 -> "---" happy, != 5 -> "    " sad */
-_attribute_ram_code_ void show_smiley(u8 state){
+_attribute_ram_code_
+void show_smiley(u8 state){
 	if (state & 1)
 		display_buff[7] |= BIT(2);
 	else
 		display_buff[7] &= ~BIT(2);
 }
 
-_attribute_ram_code_ void show_battery_symbol(bool state){
+_attribute_ram_code_
+void show_battery_symbol(bool state){
 	display_buff[5] &= ~(BIT(5) | BIT(6));
 	display_buff[6] &= ~(BIT(1) | BIT(7));
 	display_buff[7] &= ~(BIT(4) | BIT(5));
@@ -130,14 +133,17 @@ _attribute_ram_code_ void show_battery_symbol(bool state){
 	}
 }
 
-_attribute_ram_code_ void show_ble_symbol(bool state){
+_attribute_ram_code_
+void show_ble_symbol(bool state){
 	if (state)
 		display_buff[9] |= BIT(1); // "*"
 	else
 		display_buff[9] &= ~BIT(1);
 }
 
-_attribute_ram_code_ __attribute__((optimize("-Os"))) static void transmit(u8 cd, u8 data_to_send) {
+_attribute_ram_code_
+__attribute__((optimize("-Os")))
+static void transmit(u8 cd, u8 data_to_send) {
     gpio_write(EPD_SCL, LOW);
     // enable SPI
     gpio_write(EPD_CSB, LOW);
@@ -176,7 +182,9 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) static void transmit(u8 cd
     delay_SPI_end_cycle();
 }
 
-_attribute_ram_code_ __attribute__((optimize("-Os"))) static void epd_set_digit(u8 *buf, u8 digit, const u8 *segments) {
+_attribute_ram_code_
+__attribute__((optimize("-Os")))
+static void epd_set_digit(u8 *buf, u8 digit, const u8 *segments) {
     // set the segments, there are up to 11 segments in a digit
     int segment_byte;
     int segment_bit;
@@ -197,7 +205,9 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) static void epd_set_digit(
 }
 
 /* number in 0.1 (-995..19995), Show: -99 .. -9.9 .. 199.9 .. 1999 */
-_attribute_ram_code_ __attribute__((optimize("-Os"))) void show_big_number_x10(s16 number){
+_attribute_ram_code_
+__attribute__((optimize("-Os")))
+void show_big_number_x10(s16 number){
 	display_buff[1] &= ~(BIT(0) | BIT(1) | BIT(6) | BIT(7));
 	display_buff[2] = 0;
 	display_buff[3] &= ~(BIT(6) | BIT(7));
@@ -254,7 +264,9 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void show_big_number_x10(s
 }
 
 /* number in 0.1 (-99..999) -> show:  -9.9 .. 99.9 */
-_attribute_ram_code_ __attribute__((optimize("-Os"))) void show_small_number_x10(s16 number, bool percent){
+_attribute_ram_code_
+__attribute__((optimize("-Os")))
+void show_small_number_x10(s16 number, bool percent){
 	display_buff[0] &= ~(BIT(0) | BIT(1) | BIT(2));
 	display_buff[3] &= ~(BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5));
 	display_buff[5] &= ~(BIT(1) | BIT(2) | BIT(3));
@@ -310,19 +322,6 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void show_small_number_x10
 	}
 }
 
-void init_lcd(void) {
-	// pulse RST_N low for 110 microseconds
-    gpio_write(EPD_RST, LOW);
-    pm_wait_us(110);
-	lcd_refresh_cnt = DEF_EPD_REFRESH_CNT;
-    stage_lcd = 1;
-    epd_updated = 0;
-    flg_lcd_init = 1;
-    gpio_write(EPD_RST, HIGH);
-    bls_pm_setWakeupSource(PM_WAKEUP_PAD | PM_WAKEUP_TIMER);  // gpio pad wakeup suspend/deepsleep
-    // EPD_BUSY: Low 866 us
-}
-
 void show_batt_cgg1(void) {
 	u16 battery_level = 0;
 #if USE_AVERAGE_BATTERY
@@ -338,7 +337,26 @@ void show_batt_cgg1(void) {
 	show_small_number_x10(battery_level, false);
 }
 
-_attribute_ram_code_ void update_lcd(void){
+void init_lcd(void) {
+	// pulse RST_N low for 110 microseconds
+    gpio_write(EPD_RST, LOW);
+    pm_wait_us(110);
+	lcd_refresh_cnt = DEF_EPD_REFRESH_CNT;
+    stage_lcd = 1;
+    epd_updated = 0;
+    flg_lcd_init = 1;
+    gpio_write(EPD_RST, HIGH);
+    bls_pm_setWakeupSource(PM_WAKEUP_PAD | PM_WAKEUP_TIMER);  // gpio pad wakeup suspend/deepsleep
+    // EPD_BUSY: Low 866 us
+}
+
+void reinit_lcd(void) {
+	memset(display_cmp_buff, 0, sizeof(display_cmp_buff));
+	init_lcd();
+}
+
+_attribute_ram_code_
+void update_lcd(void){
 	if(cfg.flg2.screen_off) {
 		stage_lcd = 0;
 		return;
@@ -358,11 +376,9 @@ _attribute_ram_code_ void update_lcd(void){
 	}
 }
 
-_attribute_ram_code_  __attribute__((optimize("-Os"))) int task_lcd(void) {
-	if(cfg.flg2.screen_off) {
-		stage_lcd = 0;
-		return stage_lcd;
-	}
+_attribute_ram_code_
+__attribute__((optimize("-Os")))
+int task_lcd(void) {
 	if (gpio_read(EPD_BUSY)) {
 		switch (stage_lcd) {
 		case 1: // Update/Init lcd, stage 1

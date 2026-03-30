@@ -24,9 +24,11 @@ typedef struct {
 	u32	start_time;		// = wrk.utc_time_sec при старте каждого интервала
 	scan_cfg_t cfg;
 	u8 	enabled;
+#if USE_SYNC_SCAN == 2
 	u8	sync_count;		// consecutive successful syncs (adaptive window)
 	u8	fail_count;		// consecutive scan misses (spring-back)
 	u16	window_ms;		// current scan window in ms (adaptive: 50..1800)
+#endif
 } scan_wrk_t;
 
 extern scan_wrk_t scan;

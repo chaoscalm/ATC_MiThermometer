@@ -135,6 +135,7 @@ void filter_bthome_ad(padv_bthome_t p, u8 * pmac) {
 		while(len > 0) {
 			if(ps->type < sizeof(tblBTHome)) {
 				if(ps->type == BtHomeID_timestamp) { // in 1 sec
+#if USE_SYNC_SCAN == 2
 					u32 new_time = ps->data_uw;
 					s32 drift = (s32)(new_time - wrk.utc_time_sec);
 					if(drift < 0) drift = -drift;
@@ -154,6 +155,12 @@ void filter_bthome_ad(padv_bthome_t p, u8 * pmac) {
 					// Shrink scan window after 3 consecutive successes (floor 50ms)
 					if(scan.sync_count >= 3 && scan.window_ms > 50)
 						scan.window_ms /= 2;
+#else
+					wrk.utc_time_sec = ps->data_uw; // + scan.cfg.localt;
+#if (DEV_SERVICES & SERVICE_HARD_CLOCK)
+					rtc_set_utime(wrk.utc_time_sec);
+#endif
+#endif
 #if 0 //(DEV_SERVICES & SERVICE_SCREEN)
 				} else if(ps->type == BtHomeID_raw) { // Show ext. small and big number
 					size = ps->data_ub[0];
@@ -219,7 +226,9 @@ int scanning_event_callback(u32 h, u8 *p, int n) {
 		if ((h & 0xff) == HCI_EVT_LE_META) {
 			//----- hci le event: le adv report event -----
 			if (p[0] == HCI_SUB_EVT_LE_ADVERTISING_REPORT) { // ADV packet
+				// after controller is set to scan state, it will report all the adv packet it received by this event
 				event_adv_report_t *pa = (event_adv_report_t *) p;
+#if USE_SYNC_SCAN == 2
 				// MAC filter: all-zero accepts any, otherwise match configured MAC
 				u8 mac_any = 1;
 				int k;
@@ -236,7 +245,7 @@ int scanning_event_callback(u32 h, u8 *p, int n) {
 							u32 len = pd->size + 1;
 							if(len <= adlen) {
 								if(len >= sizeof(ad_uuid16_t) && pd->type == GAP_ADTYPE_SERVICE_DATA_UUID_16BIT) {
-									if((pd->uuid16) == ADV_BTHOME_UUID16) {
+									if((pd->uuid16) == ADV_BTHOME_UUID16) { 	
 										memcpy(prev_advs, pd, len);
 										filter_bthome_ad((adv_bthome_t *)prev_advs, pa->mac);
 										blc_ll_setScanEnable(BLC_SCAN_DISABLE, DUP_FILTER_DISABLE);
@@ -252,6 +261,34 @@ int scanning_event_callback(u32 h, u8 *p, int n) {
 						}
 					}
 				}
+#else
+				if(memcmp(scan.cfg.MAC, pa->mac, sizeof(scan.cfg.MAC)) == 0) {
+					blc_ll_setScanEnable(BLC_SCAN_DISABLE, DUP_FILTER_DISABLE); // отсановить сканирование
+					scan.start_tik = 0; // enable sleep
+					u32 adlen = pa->len;
+					u8 rssi = pa->data[adlen];
+					if (adlen && adlen < 32 && rssi != 0) { // rssi != 0
+						u32 i = 0;
+						while(adlen) {
+							pad_uuid16_t pd = (pad_uuid16_t) &pa->data[i];
+							u32 len = pd->size + 1;
+							if(len <= adlen) {
+								if(len >= sizeof(ad_uuid16_t) && pd->type == GAP_ADTYPE_SERVICE_DATA_UUID_16BIT) {
+									if((pd->uuid16) == ADV_BTHOME_UUID16) { // GATT Service: BTHome v2
+										memcpy(prev_advs, pd, len);
+										filter_bthome_ad((adv_bthome_t *)prev_advs, pa->mac);
+										blta.adv_duraton_en = 0; // reload adv
+										scan_stop(); // stop scan
+									}
+								}
+							} else
+								break;
+							adlen -= len;
+							i += len;
+						}
+					}
+				}
+#endif
 			}
 		}
 	}
@@ -284,10 +321,17 @@ void scan_init(void) {
 
 	if(flash_read_cfg(&scan.cfg, EEP_ID_SCN, sizeof(scan.cfg)) != sizeof(scan.cfg)) {
 		memset(&scan.cfg, 0, sizeof(scan.cfg));
+#if USE_SYNC_SCAN == 2
 		scan.cfg.interval = 3600; // default: scan every hour
 	}
 	if(scan.cfg.interval == 0)
 		scan.cfg.interval = 3600; // ensure scan is enabled
+	scan.start_time = 0;    // trigger immediate first scan on boot
+	scan.window_ms = 1800;  // initial window: guaranteed catch (~1.58s beacon)
+#else
+	}
+	scan_stop();
+#endif
 #if SCAN_DEBUG
 	// Test values:
 	scan.cfg.interval = 30; // 30 sec for test
@@ -298,8 +342,6 @@ void scan_init(void) {
 	scan.cfg.MAC[4] = 0x05;
 	scan.cfg.MAC[5] = 0x06;
 #endif
-	scan.start_time = 0;    // trigger immediate first scan on boot
-	scan.window_ms = 1800;  // initial window: guaranteed catch (~1.58s beacon)
 }
 
 //////////////////////////////////////////////////////////
@@ -339,6 +381,7 @@ _attribute_ram_code_
 __attribute__((optimize("-Os")))
 void scan_task(void) {
 	u32 tt = clock_time() - scan.start_tik;
+#if USE_SYNC_SCAN == 2
 	if(tt > scan.window_ms * CLOCK_16M_SYS_TIMER_CLK_1MS) {
 		// Scan window expired without catching beacon
 		if(scan.fail_count < 255) scan.fail_count++;
@@ -348,6 +391,9 @@ void scan_task(void) {
 			scan.window_ms = (scan.window_ms * 2 > 1800) ? 1800 : scan.window_ms * 2;
 		if(scan.cfg.interval > 1800)
 			scan.cfg.interval /= 2;
+#else
+	if(tt > 9*CLOCK_16M_SYS_TIMER_CLK_1MS) {
+#endif
 		blc_ll_setScanEnable(BLC_SCAN_DISABLE, DUP_FILTER_DISABLE); // остановить сканирование
 		scan.start_tik = 0;
 #ifdef SET_NO_SLEEP_MODE

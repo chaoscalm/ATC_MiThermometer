@@ -114,7 +114,6 @@ void send_to_lcd(void){
 	}
 }
 
-
 void init_lcd(void){
 	lcd_i2c_addr = (u8) scan_i2c_addr(BL55028_I2C_ADDR << 1);
 	if (lcd_i2c_addr) { // B1.9
@@ -126,6 +125,11 @@ void init_lcd(void){
 		}
 		return;
 	}
+}
+
+void reinit_lcd(void) {
+	memset(display_cmp_buff, 0, sizeof(display_cmp_buff));
+	init_lcd();
 }
 
 /* 0x00 = "  "

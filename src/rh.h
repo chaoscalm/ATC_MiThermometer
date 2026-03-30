@@ -67,8 +67,8 @@ int calibrate_rh_100(void);
 typedef struct _thsensor_coef_t {
 	u32 val1_k;	// temp_k / current_k
 	u32 val2_k;	// humi_k / voltage_k
-	s16 val1_z;		// temp_z / current_z
-	s16 val2_z;		// humi_z / voltage_z
+	s16 val1_z;	// temp_z / current_z
+	s16 val2_z;	// humi_z / voltage_z
 } sensor_coef_t; // [12]
 
 
@@ -90,6 +90,7 @@ typedef struct _sensor_cfg_t {
 extern sensor_cfg_t sensor_cfg;
 #define sensor_cfg_send_size 18 //max 19
 
+int calibrate_rh_t(void);
 int calibrate_rh_0(void);
 int calibrate_rh_100(void);
 

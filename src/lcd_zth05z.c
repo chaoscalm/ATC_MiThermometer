@@ -121,6 +121,11 @@ void init_lcd(void){
 	}
 }
 
+void reinit_lcd(void) {
+	memset(display_cmp_buff, 0, sizeof(display_cmp_buff));
+	init_lcd();
+}
+
 /* 0x00 = "  "
  * 0x20 = "°Г"
  * 0x40 = " -"

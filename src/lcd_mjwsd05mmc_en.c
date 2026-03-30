@@ -235,6 +235,12 @@ void init_lcd(void){
 	}
 }
 
+void reinit_lcd(void) {
+	memset(display_cmp_buff, 0, sizeof(display_cmp_buff));
+	init_lcd();
+}
+
+
 _attribute_ram_code_ __attribute__((optimize("-Os"))) static void lcd_set_digit(u8 *buf, u8 digit, const u8 *segments) {
     // set the segments, there are up to 11 segments in a digit
     int segment_byte;

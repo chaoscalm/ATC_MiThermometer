@@ -211,6 +211,11 @@ void init_lcd(void){
 	}
 }
 
+void reinit_lcd(void) {
+	memset(display_cmp_buff, 0, sizeof(display_cmp_buff));
+	init_lcd();
+}
+
 _attribute_ram_code_
 void send_to_lcd(void){
 	if(cfg.flg2.screen_off)
@@ -228,7 +233,6 @@ void send_to_lcd(void){
 		lcd_send_i2c_buf(buf, sizeof(buf));
 	}
 }
-
 
 /* 0x00 = "  "
  * 0x20 = "°Г"

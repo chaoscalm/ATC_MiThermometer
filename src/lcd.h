@@ -56,6 +56,7 @@ extern u8 lcd_i2c_addr; // LCD controller I2C address
 //#define SET_LCD_UPDATE()
 void lcd(void);
 void init_lcd(void);
+void reinit_lcd(void);
 void send_to_lcd(void);
 void update_lcd(void);
 /* 0x00 = "  "
@@ -361,6 +362,7 @@ void show_ota_screen(void);
 #define SHOW_OTA_SCREEN() show_ota_screen()
 
 void init_lcd(void);
+void reinit_lcd(void);
 void lcd(void);
 void send_to_lcd(void);
 void update_lcd(void);

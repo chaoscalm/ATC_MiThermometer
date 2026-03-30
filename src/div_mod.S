@@ -121,17 +121,30 @@ div:
 
 //removed?
 #if 1
-	//.section	.ram_code,"ax" //in ram code
+	.section .text,"ax" //in flash code
 	.align	4
 	.global	mul32x32_64
 	.thumb_func
 	.type	mul32x32_64, %function
 mul32x32_64:
     tmul	r0, r1
-    tloadr	r1, [pc, #4]
+    tloadr	r1, [pc, #4] // REG_ADDR32(0x6fc)
     tloadr	r1, [r1, #0]
     tjex	lr
     .word(0x008006fc)
+
+	.section .text,"ax" //in flash code
+	.align	4
+	.global	mul32x32_shl32
+	.thumb_func
+	.type	mul32x32_shl32, %function
+mul32x32_shl32:
+    tmul	r0, r1
+    tloadr	r0, [pc, #4] // REG_ADDR32(0x6fc)
+    tloadr	r0, [r0, #0]
+    tjex	lr
+    .word(0x008006fc)
+
 #endif
 
 #if 0
@@ -171,8 +184,6 @@ MZ_MUL1_END:
 	tmov	r8, r4
 	tpop 	{r4, r5, r6, r7}
     tjex	lr
-
-#endif
 
 	//.section	.ram_code,"ax" //in ram code
 	.align	4
@@ -331,6 +342,7 @@ MZ_MUL2_END:
     tjex	lr
     tnop
 
+#endif
 
 ///////// asm crc24 function 2
 	.section	.ram_code,"ax" //in ram code
@@ -455,6 +467,7 @@ CRC24_END:
 	tmov	r8, r5
 	tpop	{r3, r4, r5, r6, r7, pc}
 	tnop
+
 
 //		static int Crc24Lookup[16] = {
 //			0x0000000,0x01b4c00,0x0369800,0x02dd400,

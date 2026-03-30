@@ -105,10 +105,8 @@ RAM u8 epd_updated;
 // T_LUT_ping, T_LUT_init, T_LUT_work values taken from the actual device with a
 // logic analyzer
 //----------------------------------
-const u8 T_LUT_ping[5] = {0x07B, 0x081, 0x0E4, 0x0E7, 0x008};
-const u8 T_LUT_init[14] = {0x082, 0x068, 0x050, 0x0E8, 0x0D0, 0x0A8, 0x065, 0x07B, 0x081, 0x0E4, 0x0E7, 0x008, 0x0AC, 0x02B };
-const u8 T_LUT_work[9] = {0x082, 0x080, 0x000, 0x0C0, 0x080, 0x080, 0x062, 0x0AC, 0x02B};
-//const u8 T_LUT_test[16] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0x00};
+const u8 T_LUT_init[14] = {0x082, 0x068, 0x050, 0x0E8, 0x0D0, 0x0A8, 0x065, 0x07B, 0x081, 0x0E4, 0x0E7, 0x008, 0x0AC, 0x02B};
+const u8 T_LUT_work[14] = {0x082, 0x080, 0x000, 0x0C0, 0x080, 0x080, 0x062, 0x07B, 0x081, 0x0E4, 0x0E7, 0x008, 0x0AC, 0x02B};
 
 #define delay_SPI_end_cycle() sleep_us(2)
 #define delay_EPD_SCL_pulse() sleep_us(2)
@@ -391,26 +389,20 @@ void init_lcd(void) {
     bls_pm_setWakeupSource(PM_WAKEUP_PAD | PM_WAKEUP_TIMER);  // gpio pad wakeup suspend/deepsleep
 }
 
+void reinit_lcd(void) {
+	memset(display_cmp_buff, 0, sizeof(display_cmp_buff));
+	init_lcd();
+}
+
 _attribute_ram_code_  __attribute__((optimize("-Os"))) int task_lcd(void) {
-	if(cfg.flg2.screen_off) {
-		stage_lcd = 0;
-		return stage_lcd;
-	}
 	if (gpio_read(EPD_BUSY)) {
 		switch (stage_lcd) {
 		case 1: // Update/Init, stage 1
-			transmit_blk(0, T_LUT_ping, sizeof(T_LUT_ping));
-			stage_lcd = 2;
-			break;
-		case 2: // Update/Init, stage 2
 			if (epd_updated == 0) {
 				transmit_blk(0, T_LUT_init, sizeof(T_LUT_init));
 			} else {
 				transmit_blk(0, T_LUT_work, sizeof(T_LUT_work));
 			}
-			stage_lcd = 3;
-			break;
-		case 3: // Update/Init, stage 3
 			transmit(0, 0x040);
 			transmit(0, 0x0A9);
 			transmit(0, 0x0A8);
@@ -419,19 +411,20 @@ _attribute_ram_code_  __attribute__((optimize("-Os"))) int task_lcd(void) {
 			transmit(0, 0x0AA);
 			transmit(0, 0x0AF);
 			if (epd_updated) {
-				stage_lcd = 4;
+				stage_lcd = 2;
 				// EPD_BUSY: ~500 ms
 			} else {
 				epd_updated = 1;
-				stage_lcd = 2;
 				// EPD_BUSY: ~1000 ms
 			}
 			// sleep_us(200); // Waiting for EPD BUSY to be setting?
 			break;
-		case 4: // Update, stage 4
+		case 2: // Update, stage 2
 			transmit(0, 0x0AE);
 			transmit(0, 0x028);
 			transmit(0, 0x0AD);
+			stage_lcd = 0;
+			break;
 		default:
 			stage_lcd = 0;
 		}

@@ -69,10 +69,10 @@ extern "C" {
 //#define DEVICE_RSH_HS03	48  // Tuya ZigBee Temperature/Humidity Sensor "TY0201_TZ3000_bjawzodf", PCB designator "RSH-HS03-V2.0-241018"
 #define DEVICE_LYWSD02MMC	49  // EInk display, Clock
 
-//#define TEST_PLM1 			1  // TB03F My Plant monitor
+#define TEST_PLM1 			1  // TB03F My Plant monitor
 
 #ifndef DEVICE_TYPE
-#define DEVICE_TYPE			DEVICE_LYWSD02MMC
+#define DEVICE_TYPE			DEVICE_MJWSD05MMC
 #endif
 
 // supported services by the device (bits)
@@ -702,6 +702,24 @@ extern "C" {
   0x80000 End Flash (FLASH_SIZE)
  */
 
+//#define USE_SYNC_SCAN 2 // https://github.com/pvvx/ATC_MiThermometer/pull/793
+
+#ifndef USE_SYNC_SCAN
+#define DEV_SERVICES ( SERVICE_OTA\
+		| SERVICE_OTA_EXT \
+		| SERVICE_PINCODE \
+		| SERVICE_BINDKEY \
+		| SERVICE_HISTORY \
+		| SERVICE_SCREEN \
+		| SERVICE_LE_LR \
+		| SERVICE_THS \
+		| SERVICE_RDS \
+		| SERVICE_KEY \
+		| SERVICE_HARD_CLOCK \
+		| SERVICE_TH_TRG \
+		| SERVICE_MI_KEYS \
+)
+#else
 #define DEV_SERVICES ( SERVICE_OTA\
 		| SERVICE_OTA_EXT \
 		| SERVICE_PINCODE \
@@ -717,6 +735,7 @@ extern "C" {
 		| SERVICE_MI_KEYS \
 		| SERVICE_SCANTIM \
 )
+#endif
 
 #define MI_HW_VER_FADDR 0x7D000 // Mi HW version
 // ### TLSR8250F512ET32
@@ -1410,9 +1429,18 @@ extern "C" {
 #define PWM_PIN			GPIO_PC1
 #define AS_PWMx			AS_PWM0
 #define PWM_ID			PWM0_ID
+#define PC1_INPUT_ENABLE	1
+#define PC1_DATA_OUT		0
+#define PC1_OUTPUT_ENABLE	0
+#define PC1_FUNC			AS_GPIO
+//#define PULL_WAKEUP_SRC_PC1	PM_PIN_PULLUP_1M
 // ADC
 #define GPIO_RHI		GPIO_PB5
 #define CHNL_RHI		6 //B5P
+#define PB5_DATA_OUT		0
+#define PB5_OUTPUT_ENABLE	0
+//#define PULL_WAKEUP_SRC_PB5	PM_PIN_PULLUP_1M
+#define PB5_DATA_STRENGTH	0
 
 #define USE_SENSOR_NTC	1
 

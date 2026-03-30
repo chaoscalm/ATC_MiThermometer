@@ -311,6 +311,11 @@ void init_lcd(void) {
     bls_pm_setWakeupSource(PM_WAKEUP_PAD | PM_WAKEUP_TIMER);  // gpio pad wakeup suspend/deepsleep
 }
 
+void reinit_lcd(void) {
+	memset(display_cmp_buff, 0, sizeof(display_cmp_buff));
+	init_lcd();
+}
+
 _attribute_ram_code_ void update_lcd(void){
 	if(cfg.flg2.screen_off) {
 		stage_lcd = 0;
@@ -334,10 +339,6 @@ _attribute_ram_code_ void update_lcd(void){
 _attribute_ram_code_
 __attribute__((optimize("-Os")))
 int task_lcd(void) {
-	if(cfg.flg2.screen_off) {
-		stage_lcd = 0;
-		return stage_lcd;
-	}
 	if (gpio_read(EPD_BUSY)) {
 		switch (stage_lcd) {
 		case 1: // Update/Init lcd, stage 1
